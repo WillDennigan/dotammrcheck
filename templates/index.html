@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MMR Tracker</title>
+</head>
+<body>
+    <h1>MMR Tracker</h1>
+
+    {% if user_data %}
+        <p>User: {{ user_data['user'] }}</p>
+        <p>Current MMR: {{ user_data['currentMMR'] }}</p>
+        <p>Goal Medal: {{ user_data['goalMedal'] }}</p>
+        <p>Approximate Wins to Goal: {{ approximate_wins }}</p>
+        <p>Next Medal: {{ next_medal }} - {{ mmr_to_next }} MMR away</p>
+    {% else %}
+        <p>No data found. Please add your MMR below.</p>
+    {% endif %}
+
+    <h2>Update MMR</h2>
+    <form action="{{ url_for('update_mmr') }}" method="post">
+        <label for="user">Username:</label><br>
+        <input type="text" id="user" name="user" required><br>
+        
+        <label for="mmr">MMR:</label><br>
+        <input type="number" id="mmr" name="mmr" required><br>
+
+        <label for="goal_medal">Goal Medal:</label><br>
+        <select id="goal_medal" name="goal_medal">
+            {% for medal in mmr_medals.keys() %}
+                <option value="{{ medal }}">{{ medal }}</option>
+            {% endfor %}
+        </select><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>
