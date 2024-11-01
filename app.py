@@ -1,10 +1,13 @@
+# app.py
+
 from flask import Flask, request, render_template, redirect, url_for, flash
 import sqlite3
-from utils.mmr_medals import mmr_medals
+from utils.mmr_medals import mmr_medals  # Import remains the same
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
+# Connect to the database
 def get_db_connection():
     conn = sqlite3.connect('mmr_database.db')
     conn.row_factory = sqlite3.Row
@@ -26,8 +29,10 @@ def index():
         mmr_diff = goal_mmr - current_mmr
         approximate_wins = round(mmr_diff / 25) if mmr_diff > 0 else 0
         next_medal, mmr_to_next = next_medal_in(current_mmr)
-        return render_template('index.html', user_data=user_data, approximate_wins=approximate_wins, next_medal=next_medal, mmr_to_next=mmr_to_next)
-    return render_template('index.html', user_data=None)
+        return render_template('index.html', user_data=user_data, approximate_wins=approximate_wins, next_medal=next_medal, mmr_to_next=mmr_to_next, mmr_medals=mmr_medals)
+    
+    # Pass mmr_medals even when no user data is found
+    return render_template('index.html', user_data=None, mmr_medals=mmr_medals)
 
 @app.route('/update_mmr', methods=['POST'])
 def update_mmr():
