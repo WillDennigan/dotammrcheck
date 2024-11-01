@@ -3,46 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <title>MMR Tracker</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #4A90E2;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4A90E2;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #357ABD;
+        }
+
+        .result {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .result h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #4A90E2;
+        }
+
+        .result p {
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+    </style>
 </head>
 <body>
-    <h1>MMR Tracker</h1>
+    <div class="container">
+        <h1>MMR Tracker</h1>
 
-    {% if user_data %}
-        <p>User: {{ user_data['user'] }}</p>
-        <p>Current MMR: {{ user_data['currentMMR'] }}</p>
-        <p>Goal Medal: {{ user_data['goalMedal'] }}</p>
-        <p>Approximate Wins to Goal: {{ approximate_wins }}</p>
-        <p>Next Medal: {{ next_medal }} - {{ mmr_to_next }} MMR away</p>
-    {% else %}
-        <p>No data found. Please add your MMR below.</p>
-    {% endif %}
+        <form action="{{ url_for('calculate') }}" method="post">
+            <label for="current_mmr">Current MMR:</label>
+            <input type="number" id="current_mmr" name="current_mmr" required>
 
-    <h2>Update MMR</h2>
-    <form action="{{ url_for('update_mmr') }}" method="post">
-        <label for="user">Username:</label><br>
-        <input type="text" id="user" name="user" required><br>
-        
-        <label for="mmr">MMR:</label><br>
-        <input type="number" id="mmr" name="mmr" required><br>
+            <label for="goal_medal">Desired Medal:</label>
+            <select id="goal_medal" name="goal_medal">
+                {% for medal in mmr_medals.keys() %}
+                    <option value="{{ medal }}">{{ medal }}</option>
+                {% endfor %}
+            </select>
 
-        <label for="goal_medal">Goal Medal:</label><br>
-        <select id="goal_medal" name="goal_medal">
-            {% for medal in mmr_medals.keys() %}
-                <option value="{{ medal }}">{{ medal }}</option>
-            {% endfor %}
-        </select><br>
+            <input type="submit" value="Calculate">
+        </form>
 
-        <input type="submit" value="Submit">
-    </form>
-
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul>
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+        {% if result %}
+            <div class="result">
+                <h2>Progress to {{ result.goal_medal }}</h2>
+                <p><strong>Current MMR:</strong> {{ result.current_mmr }}</p>
+                <p><strong>Goal MMR:</strong> {{ result.goal_mmr }}</p>
+                <p><strong>MMR needed to reach {{ result.goal_medal }}:</strong> {{ result.mmr_diff }}</p>
+                <p><strong>Approximate wins needed:</strong> {{ result.approximate_wins }}</p>
+                <p><strong>Next Medal:</strong> {{ result.next_medal }} - {{ result.mmr_to_next }} MMR away</p>
+            </div>
+        {% endif %}
+    </div>
 </body>
 </html>
